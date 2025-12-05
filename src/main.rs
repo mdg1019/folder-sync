@@ -1,12 +1,22 @@
+mod file_system;
 mod utils;
 use std::env::args;
+
+use crate::file_system::{create_destination_dir_if_not_exists};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = args().collect::<Vec<String>>();
 
     let (source_path, destination_path) = utils::parse_args(args)?;
-    println!("Source path: {:?}", source_path);
-    println!("Destination path: {:?}", destination_path);
+
+    println!("Building file tree for source path...");
+    let tree = file_system::build_tree(*source_path.clone())?;
+
+    let dir_exists = create_destination_dir_if_not_exists(&destination_path)?;
+
+    if !dir_exists {
+        return Ok(());
+    }
 
     Ok(())
 }
