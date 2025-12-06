@@ -72,7 +72,7 @@ pub fn copy_files(children: &Vec<Node>, dest_path: &PathBuf) -> Result<()> {
             Node::File { name, path, .. } => {
                 let dest_file_path = dest_path.join(name);
  
-                if dest_file_path.metadata()?.permissions().readonly() {
+                if dest_file_path.exists() && dest_file_path.metadata()?.permissions().readonly() {
                     fs::remove_file(&dest_file_path)?;
                 }
  
