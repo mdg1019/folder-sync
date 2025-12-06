@@ -66,6 +66,36 @@ pub fn get_node_info(node: &Node) -> (&str, &String, &PathBuf, &fs::Metadata, Op
     }
 }
 
+pub fn copy_files(children: &Vec<Node>, dest_path: &PathBuf) -> Result<()> {
+    for src_node in children {
+        match src_node {
+            Node::File { name, path, .. } => {
+                let dest_file_path = dest_path.join(name);
+ 
+                if dest_file_path.metadata()?.permissions().readonly() {
+                    fs::remove_file(&dest_file_path)?;
+                }
+ 
+                fs::copy(path, &dest_file_path)?;
+
+                println!("Copied file: {} to {}", path.display(), dest_file_path.display());
+            }
+            Node::Directory { name, children, .. } => {
+                let new_dest_path = dest_path.join(name);
+
+                if !fs::metadata(&new_dest_path).is_ok() {
+                    fs::create_dir_all(&new_dest_path)?;
+                    println!("Created directory: {}", new_dest_path.display());
+                }
+                
+                copy_files(children, &new_dest_path)?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
 // pub fn print_tree(node: &Node, indent: usize) {
 //     match node {
 //         Node::File { name, .. } => {

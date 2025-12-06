@@ -2,24 +2,30 @@ mod file_system;
 mod utils;
 use std::env::args;
 
-use crate::file_system::{create_destination_dir_if_not_exists};
+use crate::file_system::{copy_files, create_destination_dir_if_not_exists};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = args().collect::<Vec<String>>();
+    // let args = args().collect::<Vec<String>>();
 
-    let (source_path, destination_path) = utils::parse_args(args)?;
+    let args = vec!["folder-sync".to_string(), "/home/mark/test-src".to_string(), "/home/mark/test-dest".to_string()];
+
+    let (src_path, dest_path) = utils::parse_args(&args)?;
 
     println!("Building file tree for source path...");
-    let src_tree = file_system::build_tree(*source_path.clone())?;
+    let src_tree = file_system::build_tree(*src_path.clone())?;
 
-    let dir_exists = create_destination_dir_if_not_exists(&destination_path)?;
+    let dir_exists = create_destination_dir_if_not_exists(&dest_path)?;
 
     if !dir_exists {
         return Ok(());
     }
 
-    let (file_type, name, path, metadata, children) = file_system::get_node_info(&src_tree);
-    println!("File Type: {}, Name: {}, Path: {}, Metadata: {:?}, Children: {:?}", file_type, name, path.display(), metadata, children);
+    let dest_tree = file_system::build_tree(*dest_path.clone())?;
+
+
+    let (_, _, _, _, children) = file_system::get_node_info(&src_tree);
+
+    copy_files(children.unwrap(), &dest_path)?;
 
     Ok(())
 }

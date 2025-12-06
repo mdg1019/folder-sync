@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-pub fn parse_args(args: Vec<String>) -> Result<(Box<PathBuf>, Box<PathBuf>), String> {    
+pub fn parse_args(args: &Vec<String>) -> Result<(Box<PathBuf>, Box<PathBuf>), String> {    
     if args.len() < 3{
 
         return Err("Use as: folder-sync <source> <destination>".into());
