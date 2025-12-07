@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-pub fn parse_args(args: &Vec<String>) -> Result<(Box<PathBuf>, Box<PathBuf>), String> {    
+pub fn parse_args(args: &Vec<String>) -> Result<(Box<PathBuf>, Box<PathBuf>, bool), String> {    
     if args.len() < 3{
 
         return Err("Use as: folder-sync <source> <destination>".into());
@@ -20,5 +20,14 @@ pub fn parse_args(args: &Vec<String>) -> Result<(Box<PathBuf>, Box<PathBuf>), St
         return Err(format!("Source {} must be a folder", source).into());
     }
 
-    Ok((Box::from(source_path), Box::from(destination_path)))
+    if args.len() == 4 {
+        if args[3] != "-r" {
+            return Err("Invalid option. Only '-r' is supported.".into());
+        }
+
+        return Ok((Box::from(source_path), Box::from(destination_path), true));
+
+    }
+
+    Ok((Box::from(source_path), Box::from(destination_path), false))
 }   

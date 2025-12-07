@@ -7,9 +7,11 @@ use crate::file_system::{copy_files, create_destination_dir_if_not_exists};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let args = args().collect::<Vec<String>>();
 
-    let args = vec!["folder-sync".to_string(), "/home/mark/test-src".to_string(), "/home/mark/test-dest".to_string()];
+    let args = vec!["folder-sync".to_string(), "/home/mark/test-src".to_string(), "/home/mark/test-dest".to_string(), "-r".to_string()];
 
-    let (src_path, dest_path) = utils::parse_args(&args)?;
+    let (src_path, dest_path, remove_files  ) = utils::parse_args(&args)?;
+
+    println!("Remove files: {}", remove_files);
 
     println!("Building file tree for source path...");
     let src_tree = file_system::build_tree(*src_path.clone())?;
@@ -25,8 +27,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     copy_files(children.unwrap(), &dest_path)?;
 
-    println!("Building file tree for destination path...");
-    let dest_tree = file_system::build_tree(*dest_path.clone())?;
+    if remove_files {
+        println!("Building file tree for destination path...");
+        let dest_tree = file_system::build_tree(*dest_path.clone())?;
+    }
 
     Ok(())
 }
