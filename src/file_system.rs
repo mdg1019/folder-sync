@@ -71,6 +71,16 @@ pub fn copy_files(children: &Vec<Node>, dest_path: &PathBuf) -> Result<()> {
         match src_node {
             Node::File { name, path, .. } => {
                 let dest_file_path = dest_path.join(name);
+
+                if dest_file_path.metadata().is_ok() {
+                    let src_metadata = fs::metadata(path)?;
+                    let dest_metadata = fs::metadata(&dest_file_path)?;
+
+                    if src_metadata.modified()? <= dest_metadata.modified()? {
+                        println!("Skipping file (up-to-date): {}", dest_file_path.display());
+                        continue;
+                    }
+                }
  
                 if dest_file_path.exists() && dest_file_path.metadata()?.permissions().readonly() {
                     fs::remove_file(&dest_file_path)?;

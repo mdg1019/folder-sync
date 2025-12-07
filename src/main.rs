@@ -20,12 +20,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    let dest_tree = file_system::build_tree(*dest_path.clone())?;
-
 
     let (_, _, _, _, children) = file_system::get_node_info(&src_tree);
 
     copy_files(children.unwrap(), &dest_path)?;
+
+    println!("Building file tree for destination path...");
+    let dest_tree = file_system::build_tree(*dest_path.clone())?;
 
     Ok(())
 }
