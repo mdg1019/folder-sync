@@ -3,7 +3,7 @@ use std::path::PathBuf;
 pub fn parse_args(args: &Vec<String>) -> Result<(Box<PathBuf>, Box<PathBuf>, bool), String> {    
     if args.len() < 3{
 
-        return Err("Use as: folder-sync <source> <destination>".into());
+        return Err("Use as: folder-sync <source> <destination> [-r]".into());
     }
 
     let source = &args[1];
