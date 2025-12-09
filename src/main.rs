@@ -2,12 +2,12 @@ mod file_system;
 mod utils;
 use std::env::args;
 
-use crate::file_system::{copy_files, create_destination_dir_if_not_exists};
+use crate::file_system::{copy_files, create_destination_dir_if_not_exists, remove_extra_files};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let args = args().collect::<Vec<String>>();
+    let args = args().collect::<Vec<String>>();
 
-    let args = vec!["folder-sync".to_string(), "/home/mark/test-src".to_string(), "/home/mark/test-dest".to_string(), "-r".to_string()];
+    // let args = vec!["folder-sync".to_string(), "/home/mark/test-src".to_string(), "/home/mark/test-dest".to_string(), "-r".to_string()];
 
     let (src_path, dest_path, remove_files  ) = utils::parse_args(&args)?;
 
@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if remove_files {
         println!("Building file tree for destination path...");
-        let dest_tree = file_system::build_tree(*dest_path.clone())?;
+        remove_extra_files(children.unwrap(), &dest_path)?;
     }
 
     Ok(())

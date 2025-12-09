@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use std::fs;
 use std::io::{stdin, Result};
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub enum Node {
@@ -105,6 +106,48 @@ pub fn copy_files(children: &Vec<Node>, dest_path: &PathBuf) -> Result<()> {
 
     Ok(())
 }
+
+pub fn remove_extra_files(src_children: &Vec<Node>, dest_path: &PathBuf) -> Result<()> {
+    let mut src_names: HashSet<String> = HashSet::new();
+
+    for src_node in src_children {
+        let (_, name, _, _, _) = get_node_info(src_node);
+        src_names.insert(name.clone());
+    }
+
+    if let Ok(entries) = fs::read_dir(dest_path) {
+        for entry in entries {
+            let entry = entry?;
+            let dest_name = entry.file_name().to_string_lossy().to_string();
+            let dest_path = entry.path();
+
+            if !src_names.contains(&dest_name) {
+                if dest_path.is_dir() {
+                    fs::remove_dir_all(&dest_path)?;
+                    println!("Removed directory: {}", dest_path.display());
+                } else {
+                    fs::remove_file(&dest_path)?;
+                    println!("Removed file: {}", dest_path.display());
+                }
+            } else {
+                if dest_path.is_dir() {
+                    for src_node in src_children {
+                        if let Node::Directory { name, children, .. } = src_node {
+                            if name == &dest_name {
+                                remove_extra_files(children, &dest_path)?;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+
 
 // pub fn print_tree(node: &Node, indent: usize) {
 //     match node {
